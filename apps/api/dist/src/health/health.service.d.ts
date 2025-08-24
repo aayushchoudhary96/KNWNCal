@@ -1,5 +1,6 @@
 import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 export interface HealthCheck {
     ok: boolean;
     latencyMs?: number;
@@ -31,8 +32,9 @@ export interface HealthResponse {
 export declare class HealthService {
     private configService;
     private httpAdapterHost;
+    private prisma;
     private startTime;
-    constructor(configService: ConfigService, httpAdapterHost: HttpAdapterHost);
+    constructor(configService: ConfigService, httpAdapterHost: HttpAdapterHost, prisma: PrismaService);
     getHealth(): Promise<HealthResponse>;
     private runChecks;
     private getRoutes;

@@ -13,10 +13,12 @@ exports.HealthService = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const config_1 = require("@nestjs/config");
+const prisma_service_1 = require("../prisma/prisma.service");
 let HealthService = class HealthService {
-    constructor(configService, httpAdapterHost) {
+    constructor(configService, httpAdapterHost, prisma) {
         this.configService = configService;
         this.httpAdapterHost = httpAdapterHost;
+        this.prisma = prisma;
         this.startTime = Date.now();
     }
     async getHealth() {
@@ -77,11 +79,33 @@ let HealthService = class HealthService {
             message: 'CORS is configured',
             details: { allowedOrigin: corsOrigin },
         };
-        checks['database'] = {
-            ok: true,
-            message: 'Database check disabled temporarily',
-            details: { provider: 'sqlite', note: 'check disabled' },
-        };
+        try {
+            const startTime = Date.now();
+            await this.prisma.$queryRaw `SELECT 1`;
+            const latencyMs = Date.now() - startTime;
+            const userCount = await this.prisma.user.count();
+            checks['database'] = {
+                ok: true,
+                latencyMs,
+                message: 'Database connection is healthy',
+                details: {
+                    provider: 'sqlite',
+                    userCount,
+                    status: 'connected'
+                },
+            };
+        }
+        catch (error) {
+            checks['database'] = {
+                ok: false,
+                severity: 'critical',
+                message: 'Database connection failed',
+                details: {
+                    provider: 'sqlite',
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                },
+            };
+        }
         checks['storage'] = {
             ok: true,
             message: 'Uploads disabled in MVP',
@@ -126,6 +150,7 @@ exports.HealthService = HealthService;
 exports.HealthService = HealthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService,
-        core_1.HttpAdapterHost])
+        core_1.HttpAdapterHost,
+        prisma_service_1.PrismaService])
 ], HealthService);
 //# sourceMappingURL=health.service.js.map

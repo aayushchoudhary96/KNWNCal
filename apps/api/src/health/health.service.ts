@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface HealthCheck {
   ok: boolean;
@@ -36,6 +37,7 @@ export class HealthService {
   constructor(
     private configService: ConfigService,
     private httpAdapterHost: HttpAdapterHost,
+    private prisma: PrismaService,
   ) {}
 
   async getHealth(): Promise<HealthResponse> {
@@ -107,12 +109,36 @@ export class HealthService {
       details: { allowedOrigin: corsOrigin },
     };
 
-    // Database check (simplified for now)
-    checks['database'] = {
-      ok: true,
-      message: 'Database check disabled temporarily',
-      details: { provider: 'sqlite', note: 'check disabled' },
-    };
+    // Database check using Prisma
+    try {
+      const startTime = Date.now();
+      await this.prisma.$queryRaw`SELECT 1`;
+      const latencyMs = Date.now() - startTime;
+      
+      // Check if we have users in the database
+      const userCount = await this.prisma.user.count();
+      
+      checks['database'] = {
+        ok: true,
+        latencyMs,
+        message: 'Database connection is healthy',
+        details: { 
+          provider: 'sqlite',
+          userCount,
+          status: 'connected'
+        },
+      };
+    } catch (error) {
+      checks['database'] = {
+        ok: false,
+        severity: 'critical',
+        message: 'Database connection failed',
+        details: { 
+          provider: 'sqlite',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        },
+      };
+    }
 
     // Storage check
     checks['storage'] = {

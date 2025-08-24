@@ -6,19 +6,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HealthModule = void 0;
+exports.ProjectsModule = void 0;
 const common_1 = require("@nestjs/common");
-const health_controller_1 = require("./health.controller");
-const health_service_1 = require("./health.service");
+const projects_service_1 = require("./projects.service");
+const projects_controller_1 = require("./projects.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
-let HealthModule = class HealthModule {
+const auth_module_1 = require("../auth/auth.module");
+let ProjectsModule = class ProjectsModule {
 };
-exports.HealthModule = HealthModule;
-exports.HealthModule = HealthModule = __decorate([
+exports.ProjectsModule = ProjectsModule;
+exports.ProjectsModule = ProjectsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
-        controllers: [health_controller_1.HealthController],
-        providers: [health_service_1.HealthService],
+        imports: [prisma_module_1.PrismaModule, auth_module_1.AuthModule],
+        controllers: [projects_controller_1.ProjectsController],
+        providers: [projects_service_1.ProjectsService],
+        exports: [projects_service_1.ProjectsService],
     })
-], HealthModule);
-//# sourceMappingURL=health.module.js.map
+], ProjectsModule);
+//# sourceMappingURL=projects.module.js.map

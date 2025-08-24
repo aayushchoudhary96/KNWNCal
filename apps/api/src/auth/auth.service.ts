@@ -15,6 +15,7 @@ export interface LoginResponse {
     name: string;
     email: string;
     role: string;
+    clientId?: string;
   };
 }
 
@@ -41,7 +42,8 @@ export class AuthService {
     const payload = { 
       sub: user.id, 
       email: user.email, 
-      role: user.role 
+      role: user.role,
+      clientId: user.clientId
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -53,6 +55,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
+        clientId: user.clientId,
       },
     };
   }

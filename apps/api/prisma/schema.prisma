@@ -19,4 +19,30 @@ model User {
   clientId     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  
+  // Relations
+  client       Client?  @relation(fields: [clientId], references: [id])
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  
+  // Relations
+  users     User[]
+  projects  Project[]
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  clientId  String
+  name      String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  client    Client   @relation(fields: [clientId], references: [id])
+  
+  @@index([clientId])
+  @@unique([clientId, name])
 }

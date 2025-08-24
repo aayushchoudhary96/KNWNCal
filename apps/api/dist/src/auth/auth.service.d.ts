@@ -11,6 +11,7 @@ export interface LoginResponse {
         name: string;
         email: string;
         role: string;
+        clientId?: string;
     };
 }
 export declare class AuthService {
