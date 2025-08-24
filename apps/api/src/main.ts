@@ -10,7 +10,8 @@ async function bootstrap() {
   // CORS configuration
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    credentials: true,
+    methods: 'GET,POST,PATCH,DELETE,OPTIONS',
+    credentials: false,
   });
   
   const port = process.env.PORT || 4000;
@@ -18,5 +19,6 @@ async function bootstrap() {
   
   console.log(`🚀 KnwnCal API running on http://localhost:${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
+  console.log(`🏥 Health Dashboard: http://localhost:${port}/api/healthz/ui`);
 }
 bootstrap();
